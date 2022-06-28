@@ -23,8 +23,7 @@
 using namespace muduo;
 
 /**
- * @brief 这里是编译时候的断言语句。
- *            而我们平常用的assert是运行时的断言语句。
+ * @brief 这里是编译时候的断言语句。而我们平常用的assert是运行时的断言语句。
  */
 static_assert(sizeof(Timestamp) == sizeof(int64_t),
               "Timestamp should be same size as int64_t");
@@ -39,6 +38,9 @@ string Timestamp::toString() const
   char buf[32] = {0};
   int64_t seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;
   int64_t microseconds = microSecondsSinceEpoch_ % kMicroSecondsPerSecond;
+  // 这个函数和下面的函数一样，也是返回一个字符串。
+  // 同样是64位的整数，在32位的系统中打印输出的方式不同，例如 32位系统 为lld，64位系统为ld。
+  // 这也是一个跨平台该有的做法。
   snprintf(buf, sizeof(buf), "%" PRId64 ".%06" PRId64 "", seconds, microseconds);
   return buf;
 }
@@ -47,7 +49,7 @@ string Timestamp::toFormattedString(bool showMicroseconds) const
 {
   char buf[64] = {0};
   time_t seconds = static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
-  struct tm tm_time;
+  struct tm tm_time;  // 内置的结构体。
   // 下面这个函数的  _r  表示是一个线程安全的函数。
   gmtime_r(&seconds, &tm_time); // 将秒数转化为tm的结构体，这样就可以直接使用其中的年月日等信息
 

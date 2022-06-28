@@ -74,6 +74,7 @@ class Timestamp : public muduo::copyable,
 
   ///
   /// Get time of now.
+  //    这里是静态成员函数，用于实现获取有效或者无效的时间。
   ///
   static Timestamp now();
   static Timestamp invalid()
@@ -94,7 +95,7 @@ class Timestamp : public muduo::copyable,
   static const int kMicroSecondsPerSecond = 1000 * 1000;
 
  private:
-  int64_t microSecondsSinceEpoch_;  // 这个类只有一个成员，表示时间微秒。
+  int64_t microSecondsSinceEpoch_;  // 这个类只有一个成员，表示时间微秒。时间戳。
 };
 
 inline bool operator<(Timestamp lhs, Timestamp rhs)
