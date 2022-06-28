@@ -14,24 +14,24 @@ if(CMAKE_PROJECT_NAME STREQUAL "muduo")
 endif()
 
 set(CXX_FLAGS
- -g
+ -g     # 表示生成调试信息。
  # -DVALGRIND
  -DCHECK_PTHREAD_RETURN_VALUE
- -D_FILE_OFFSET_BITS=64
- -Wall
- -Wextra
- -Werror
- -Wconversion
- -Wno-unused-parameter
- -Wold-style-cast
- -Woverloaded-virtual
- -Wpointer-arith
- -Wshadow
- -Wwrite-strings
- -march=native
+ -D_FILE_OFFSET_BITS=64   # 定义一个宏。
+ -Wall  # 大部分警告都会给出提示
+ -Wextra  # 给出一些额外的警告。比如函数接收的值没有被使用。
+ -Werror  # 当出现警告时转为错误，停止编译（把警告当成错误使用）。
+ -Wconversion # 一些可能改变值的隐式转换，给出警告。例如double赋值给int。
+ -Wno-unused-parameter #  函数中出现未使用的参数不给出警告。
+ -Wold-style-cast # C风格的转化，给出警告。
+ -Woverloaded-virtual # 如果函数的声明隐藏住了基类的虚函数，就给出警告。例如基函数有一个foo()虚函数，被子类的foo(int)给覆盖了。
+ -Wpointer-arith #  对函数指针或者void *类型的指针进行算数操作时给出警告
+ -Wshadow # 当一个局部变量遮住了另一个局部变量，或着全局变量时，给出警告。
+ -Wwrite-strings #  规定字符串常量的类型时const char[length],因此，把这样的地址复制给non-const char *指针将产生警告。这些警告能够帮助你在编译期间发现企图写入字符串常量的代码。
+ -march=native #  指定cpu体系结构为本地平台。
  # -MMD
- -std=c++11
- -rdynamic
+ -std=c++11 # 表示采用c++11的标准。
+ -rdynamic #
  )
 if(CMAKE_BUILD_BITS EQUAL 32)
   list(APPEND CXX_FLAGS "-m32")

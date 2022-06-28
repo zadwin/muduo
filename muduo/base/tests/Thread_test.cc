@@ -52,7 +52,7 @@ class Foo
 int main()
 {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
-
+  // 创建一个线程类，这个时候要要传递一个回调函数，这个函数的形式，由类规定，是无参数的，可以通过boost库指定。
   muduo::Thread t1(threadFunc);
   t1.start();
   printf("t1.tid=%d\n", t1.tid());

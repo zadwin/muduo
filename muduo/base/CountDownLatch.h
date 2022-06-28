@@ -11,23 +11,22 @@
 
 namespace muduo
 {
+  // 这个是一个“倒计时门闩”同步，应该就是为了更好的进行线程的切换。
+  class CountDownLatch : noncopyable
+  {
+  public:
+    explicit CountDownLatch(int count);
 
-class CountDownLatch : noncopyable
-{
- public:
+    void wait();
 
-  explicit CountDownLatch(int count);
+    void countDown();
 
-  void wait();
+    int getCount() const;
 
-  void countDown();
-
-  int getCount() const;
-
- private:
-  mutable MutexLock mutex_;
-  Condition condition_ GUARDED_BY(mutex_);
-  int count_ GUARDED_BY(mutex_);
+  private:
+    mutable MutexLock mutex_;
+    Condition condition_ GUARDED_BY(mutex_);
+    int count_ GUARDED_BY(mutex_);
 };
 
 }  // namespace muduo

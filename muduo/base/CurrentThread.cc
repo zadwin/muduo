@@ -13,7 +13,7 @@ namespace muduo
 {
 namespace CurrentThread
 {
-__thread int t_cachedTid = 0;
+__thread int t_cachedTid = 0; //__thread是gcc内置的线程局部存储设施。_thread变量每个线程有一份独立实体，各线程的值互不干扰，可以用来修饰那些带有带有全局性可能变，但是又不值得用全局变量保护的变量。
 __thread char t_tidString[32];
 __thread int t_tidStringLength = 6;
 __thread const char* t_threadName = "unknown";
@@ -24,11 +24,12 @@ string stackTrace(bool demangle)
   string stack;
   const int max_frames = 200;
   void* frame[max_frames];
-  int nptrs = ::backtrace(frame, max_frames);
-  char** strings = ::backtrace_symbols(frame, nptrs);
+  int nptrs = ::backtrace(frame, max_frames); // 保存各个栈帧的地址。
+  char** strings = ::backtrace_symbols(frame, nptrs); // 根据地址，转成相印的函数符号
   if (strings)
   {
     size_t len = 256;
+    // 这个demangle可以更好的现实函数名称。
     char* demangled = demangle ? static_cast<char*>(::malloc(len)) : nullptr;
     for (int i = 1; i < nptrs; ++i)  // skipping the 0-th, which is this function
     {

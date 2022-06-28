@@ -25,7 +25,7 @@ namespace detail
 
 pid_t gettid()
 {
-  return static_cast<pid_t>(::syscall(SYS_gettid));
+  return static_cast<pid_t>(::syscall(SYS_gettid)); // 调用系统函数来获取真实tid
 }
 
 void afterFork()
@@ -137,8 +137,10 @@ void CurrentThread::sleepUsec(int64_t usec)
   ::nanosleep(&ts, NULL);
 }
 
+// 静态成员变量，是原子性的。
 AtomicInt32 Thread::numCreated_;
 
+// 这里是线程的构造函数。
 Thread::Thread(ThreadFunc func, const string& n)
   : started_(false),
     joined_(false),
@@ -170,14 +172,17 @@ void Thread::setDefaultName()
   }
 }
 
+// 线程的启动函数。
 void Thread::start()
 {
   assert(!started_);
   started_ = true;
   // FIXME: move(func_)
+  // 这里相当于是将线程的信息存储到一个新的类中。
   detail::ThreadData* data = new detail::ThreadData(func_, name_, &tid_, &latch_);
+  // 创建线程，data是是关于线程的参数，是一个ThreadData类。
   if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))
-  {
+  { // 如果启动失败，则需要释放资源等操作。
     started_ = false;
     delete data; // or no delete?
     LOG_SYSFATAL << "Failed in pthread_create";
@@ -194,6 +199,7 @@ int Thread::join()
   assert(started_);
   assert(!joined_);
   joined_ = true;
+  // 这里就是将现场join，pthread_join()函数，以阻塞的方式等待thread指定的线程结束。当函数返回时，被等待线程的资源被收回。
   return pthread_join(pthreadId_, NULL);
 }
 

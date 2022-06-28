@@ -77,7 +77,7 @@ inline void memZero(void* p, size_t n)
 // but the proposal was submitted too late.  It will probably make
 // its way into the language in the future.
 template<typename To, typename From>
-inline To implicit_cast(From const &f)
+inline To implicit_cast(From const &f)  // 隐式转换的函数。为了更方便显示的看到发生了隐式转换。
 {
   return f;
 }
@@ -101,7 +101,7 @@ inline To implicit_cast(From const &f)
 // You should design the code some other way not to need this.
 
 template<typename To, typename From>     // use like this: down_cast<T*>(foo);
-inline To down_cast(From* f)                     // so we only accept pointers
+inline To down_cast(From* f)                     // so we only accept pointers， 向下转型。
 {
   // Ensures that To is a sub-type of From *.  This test is here only
   // for compile-time type checking, and has no overhead in an
@@ -112,6 +112,7 @@ inline To down_cast(From* f)                     // so we only accept pointers
     implicit_cast<From*, To>(0);
   }
 
+// 这里就稍微复杂一点。
 #if !defined(NDEBUG) && !defined(GOOGLE_PROTOBUF_NO_RTTI)
   assert(f == NULL || dynamic_cast<To>(f) != NULL);  // RTTI: debug mode only!
 #endif

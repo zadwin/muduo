@@ -3,22 +3,37 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
+/**
+ * 不同的用户采用不同的解决方案：.cc， .cpp，.cxx以及其它可能的。
+ *        今天，在Unix世界之外，它主要是.cpp。Unix似乎.cc更经常使用。
+ *
+ */
+
 #include "muduo/base/Timestamp.h"
 
 #include <sys/time.h>
 #include <stdio.h>
 
 #ifndef __STDC_FORMAT_MACROS
-#define __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS  // 主要是为了适应下面这个   inttypes.h 头文件。
 #endif
 
 #include <inttypes.h>
 
 using namespace muduo;
 
+/**
+ * @brief 这里是编译时候的断言语句。
+ *            而我们平常用的assert是运行时的断言语句。
+ */
 static_assert(sizeof(Timestamp) == sizeof(int64_t),
               "Timestamp should be same size as int64_t");
 
+/**
+ * @brief 该函数的目的也是将为了将时间转换为字符串类型，但是只要秒和微秒就行。
+ *            知识点：
+ *                  1、PRId64（是一个系统定义的宏，在inttype.h中定义）:主要是为了更好的适应32位系统（ld）和64位系统（lld）中的int64的表示方式。
+ */
 string Timestamp::toString() const
 {
   char buf[32] = {0};
@@ -33,7 +48,8 @@ string Timestamp::toFormattedString(bool showMicroseconds) const
   char buf[64] = {0};
   time_t seconds = static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSecond);
   struct tm tm_time;
-  gmtime_r(&seconds, &tm_time);
+  // 下面这个函数的  _r  表示是一个线程安全的函数。
+  gmtime_r(&seconds, &tm_time); // 将秒数转化为tm的结构体，这样就可以直接使用其中的年月日等信息
 
   if (showMicroseconds)
   {
@@ -55,7 +71,7 @@ string Timestamp::toFormattedString(bool showMicroseconds) const
 Timestamp Timestamp::now()
 {
   struct timeval tv;
-  gettimeofday(&tv, NULL);
+  gettimeofday(&tv, NULL);  // 通过内置的Linux函数获得一个当前时间的结构体。后面的NULL表示的是时区。
   int64_t seconds = tv.tv_sec;
   return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
 }
