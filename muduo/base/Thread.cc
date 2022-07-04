@@ -148,7 +148,7 @@ Thread::Thread(ThreadFunc func, const string& n)
     joined_(false),
     pthreadId_(0), // 初始为0。
     tid_(0),  // 初始为0。
-    func_(std::move(func)),
+    func_(std::move(func)),  // 这样就可以避免直接复制了。
     name_(n),
     latch_(1)
 {

@@ -8,6 +8,8 @@
 void mysleep(int seconds)
 {
   timespec t = { seconds, 0 };
+  // nanosleep()函数会导致当前的线程将暂停执行,直到rqtp参数所指定的时间间隔。或者在指定时间间隔内有信号传递到当前线程，
+  //   将引起当前线程调用信号捕获函数或终止该线程。
   nanosleep(&t, NULL);
 }
 
@@ -52,6 +54,9 @@ class Foo
 int main()
 {
   // 获取当前线程的 tid。
+  // 1、getpid是获取当前进程的真实id。2、CurrentThread::tid是为了获取当前线程的真实id（方法为  syscall + cache）。
+  // 因为当前只有一个线程——主线程，因此它和进程的真实id是一样的。
+  // 提问：为什么这里不用新建对象，而可以直接获取当前线程的tid，主要就是因为在CurrentThread类中，声明了thread类型的变量，而不是一个类成员，因此每个线程都有一份。
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
   // 创建一个线程类，这个时候要要传递一个回调函数，这个函数的形式，由类规定，是无参数的，可以通过boost库指定。
   muduo::Thread t1(threadFunc); // 创建一个线程类，包含线程的启动等等。
@@ -70,7 +75,8 @@ int main()
                    "thread for member function without argument");
   t3.start();
   t3.join();
-
+  //  C++11 的std::ref函数就是为了解决在线程的创建中等过程的值拷贝问题。
+  // 在这种方式下，即使memberFunc2是通过引用的方式接收，也会发生值拷贝，因此需要用ref。
   muduo::Thread t4(std::bind(&Foo::memberFunc2, std::ref(foo), std::string("Shuo Chen")));
   t4.start();
   t4.join();
