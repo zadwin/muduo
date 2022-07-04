@@ -1,12 +1,13 @@
 #include "muduo/base/CurrentThread.h"
 #include "muduo/base/Exception.h"
-#include <functional>
+#include <functional> // 这里其实用到的就是stl中bind和function。对函数重新配置。
 #include <vector>
 #include <stdio.h>
 
 class Bar
 {
  public:
+ // 该函数多次打印了函数栈的信息，通过不同的函数。
   void test(std::vector<std::string> names = {})
   {
     printf("Stack:\n%s\n", muduo::CurrentThread::stackTrace(true).c_str());
@@ -20,7 +21,7 @@ class Bar
 
     func = std::bind(&Bar::callback, this);
     func();
-
+    // 可以理解为他会去Exception里面获取调用获取栈信息的函数。
     throw muduo::Exception("oops");
   }
 

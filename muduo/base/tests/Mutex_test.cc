@@ -9,7 +9,7 @@
 using namespace muduo;
 using namespace std;
 
-MutexLock g_mutex;
+MutexLock g_mutex; // 这里定义了一个全局的锁。
 vector<int> g_vec;
 const int kCount = 10*1000*1000;
 
@@ -17,11 +17,12 @@ void threadFunc()
 {
   for (int i = 0; i < kCount; ++i)
   {
+    // 因为C++是存在循环内的变量的，因此循环外就会销毁。
     MutexLockGuard lock(g_mutex);
     g_vec.push_back(i);
   }
 }
-
+// __attribute__ ((noinline))告诉编译器非内联的。
 int foo() __attribute__ ((noinline));
 
 int g_count = 0;

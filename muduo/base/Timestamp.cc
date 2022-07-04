@@ -36,6 +36,7 @@ static_assert(sizeof(Timestamp) == sizeof(int64_t),
 string Timestamp::toString() const
 {
   char buf[32] = {0};
+  // 像这种 int64_t  在很多的linux系统中都是有头文件声明，其实也就是typedef。本类型还是int long等等组成。
   int64_t seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;
   int64_t microseconds = microSecondsSinceEpoch_ % kMicroSecondsPerSecond;
   // 这个函数和下面的函数一样，也是返回一个字符串。

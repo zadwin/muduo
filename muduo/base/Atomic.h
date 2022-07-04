@@ -19,6 +19,7 @@ namespace detail
 /**
  * @brief 这是一个模版类，并且是不可拷贝的，它继承自 noncopyable 类。相当于是把拷贝构造运算符设置为私有的。
  *                  实现的就是整数的加减操作。例如++i和i++等操作。
+ * 这些原子性操作是模仿java的原子性类来写的。
  * @tparam T
  */
 template<typename T>
@@ -45,7 +46,9 @@ class AtomicIntegerT : noncopyable
   T get()
   {   // 是线程安全的。
     // in gcc >= 4.7: __atomic_load_n(&value_, __ATOMIC_SEQ_CST)
-    return __sync_val_compare_and_swap(&value_, 0, 0);  // 这里就是使用gcc中的函数了。如果value_的值等于0，则返回后面的0，如果它不等于0则就返回它本身。
+    // 这里就是使用gcc中的函数了。如果value_的值等于0，则返回后面的0，如果它不等于0则就返回它本身。返回的其实也就是
+    //  value的值。
+    return __sync_val_compare_and_swap(&value_, 0, 0);
   }
 
   T getAndAdd(T x)
@@ -56,6 +59,7 @@ class AtomicIntegerT : noncopyable
 
   T addAndGet(T x)
   {
+    // 先获取然后进行+操作。这里相当于+了两次，变量本身以及获得的值。
     return getAndAdd(x) + x;
   }
 
@@ -87,15 +91,17 @@ class AtomicIntegerT : noncopyable
   T getAndSet(T newValue)
   {
     // in gcc >= 4.7: __atomic_exchange_n(&value_, newValue, __ATOMIC_SEQ_CST)
+    // 返回值并且设置为新值。
     return __sync_lock_test_and_set(&value_, newValue);
   }
 
  private:
+  // 这里同样也要用volatile来修饰，主要是防止CPU直接从寄存器中获取值。
   volatile T value_;  // 只有一个成员。这里用volatile修饰就是防止编译器对它进行优化。
 };
 }  // namespace detail
 
-// 这里是两个实例化，原子性的整数类。typedef是为一种数据类型定义一个新名字
+// 这里是两个实例化类，原子性的整数类。typedef是为一种数据类型定义一个新名字
 typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
 typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
 

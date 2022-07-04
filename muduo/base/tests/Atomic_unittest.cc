@@ -4,6 +4,7 @@
 int main()
 {
   {
+  // 引入muduo库中声明的类型。
   muduo::AtomicInt64 a0;
   assert(a0.get() == 0);
   assert(a0.getAndAdd(1) == 0);

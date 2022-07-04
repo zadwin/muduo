@@ -24,6 +24,7 @@ set(CXX_FLAGS
  -Wconversion # 一些可能改变值的隐式转换，给出警告。例如double赋值给int。
  -Wno-unused-parameter #  函数中出现未使用的参数不给出警告。
  -Wold-style-cast # C风格的转化，给出警告。
+ # 隐藏是只要函数名相同就行。
  -Woverloaded-virtual # 如果函数的声明隐藏住了基类的虚函数，就给出警告。例如基函数有一个foo()虚函数，被子类的foo(int)给覆盖了。
  -Wpointer-arith #  对函数指针或者void *类型的指针进行算数操作时给出警告
  -Wshadow # 当一个局部变量遮住了另一个局部变量，或着全局变量时，给出警告。

@@ -30,7 +30,7 @@ void threadFunc3()
 class Foo
 {
  public:
-  explicit Foo(double x)
+  explicit Foo(double x)   // 这个就表示必须要显示调用。
     : x_(x)
   {
   }
@@ -51,12 +51,13 @@ class Foo
 
 int main()
 {
+  // 获取当前线程的 tid。
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
   // 创建一个线程类，这个时候要要传递一个回调函数，这个函数的形式，由类规定，是无参数的，可以通过boost库指定。
-  muduo::Thread t1(threadFunc);
+  muduo::Thread t1(threadFunc); // 创建一个线程类，包含线程的启动等等。
   t1.start();
   printf("t1.tid=%d\n", t1.tid());
-  t1.join();
+  t1.join(); // 这个是对于主线程来说的，它会等待子线程结束然后执行下面的代码。
 
   muduo::Thread t2(std::bind(threadFunc2, 42),
                    "thread for free function with argument");

@@ -15,14 +15,14 @@ namespace CurrentThread
   // internal
   // __thread是gcc内置的线程局部存储的。则每个线程都有一份。
   extern __thread int t_cachedTid; // 线程真实pid（tid）的缓存。为了提高获取tid的效率。
-  extern __thread char t_tidString[32];
+  extern __thread char t_tidString[32]; // 这是tid的字符串表示形式。
   extern __thread int t_tidStringLength;
-  extern __thread const char* t_threadName;
+  extern __thread const char *t_threadName; // 这表示线程的名称。
   void cacheTid();
 
   inline int tid()
   {
-    if (__builtin_expect(t_cachedTid == 0, 0))
+    if (__builtin_expect(t_cachedTid == 0, 0)) // 判断是否缓存过。
     {
       cacheTid();
     }

@@ -112,7 +112,7 @@ inline To down_cast(From* f)                     // so we only accept pointers�
     implicit_cast<From*, To>(0);
   }
 
-// 这里就稍微复杂一点。
+// 这里就稍微复杂一点。RTTI 运行时类型识别。
 #if !defined(NDEBUG) && !defined(GOOGLE_PROTOBUF_NO_RTTI)
   assert(f == NULL || dynamic_cast<To>(f) != NULL);  // RTTI: debug mode only!
 #endif

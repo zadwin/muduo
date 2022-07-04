@@ -24,6 +24,7 @@ namespace muduo
     int getCount() const;
 
   private:
+    // 用mutable修饰就可以使得getCount可以改变它的状态。
     mutable MutexLock mutex_;
     Condition condition_ GUARDED_BY(mutex_);
     int count_ GUARDED_BY(mutex_);

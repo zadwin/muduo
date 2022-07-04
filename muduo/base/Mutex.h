@@ -118,29 +118,36 @@ namespace muduo
 //   mutable MutexLock mutex_;
 //   std::vector<int> data_ GUARDED_BY(mutex_);
 // };
+
+// noncopyable 类利用了c++11中新特性，将拷贝构造函数和复制构造函数delete，确保MutexLock类不能重载。
 class CAPABILITY("mutex") MutexLock : noncopyable
 {
  public:
   MutexLock()
-    : holder_(0)
-  {
+    : holder_(0) // 初始化为没有任何线程拥有。
+  { // 初始化互斥锁，并检查（MCHECK）是否初始化成功。
+    // 参考链接：https://www.cnblogs.com/eustoma/p/10054783.html
+    // NULL表示采用默认锁类型（即普通锁）——不论哪种类型的锁，
+    //  都不可能被两个不同的线程同时得到，而必须等待解锁。，函数成功执行后，互斥锁被初始化为未锁住态。
     MCHECK(pthread_mutex_init(&mutex_, NULL));
   }
 
   ~MutexLock()
   {
-    assert(holder_ == 0);
+    // assert是运行时断言,只有在执行到assert时才会进行判断。
+    assert(holder_ == 0); // 断言锁没有被任何线程获得，才能够去销毁。
     MCHECK(pthread_mutex_destroy(&mutex_));
   }
 
   // must be called when locked, i.e. for assertion
+  // 判断当前线程是否拥有锁。
   bool isLockedByThisThread() const
   {
-    return holder_ == CurrentThread::tid();
+    return holder_ == CurrentThread::tid();  // 通过systemcall + cache方式。
   }
 
   void assertLocked() const ASSERT_CAPABILITY(this)
-  {
+  { // 断言当前线程是否拥有锁。
     assert(isLockedByThisThread());
   }
 
@@ -195,7 +202,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable
   }
 
   pthread_mutex_t mutex_;
-  pid_t holder_;
+  pid_t holder_; // 表示该锁被谁获得。
 };
 
 // Use as a stack variable, eg.
@@ -204,6 +211,9 @@ class CAPABILITY("mutex") MutexLock : noncopyable
 //   MutexLockGuard lock(mutex_);
 //   return data_.size();
 // }
+// 采用一个类来管理mutex，防止忘记释放锁资源。
+//  我们用这个类，就是在利用C++的RAII机制，让锁在作用域内全自动化
+
 class SCOPED_CAPABILITY MutexLockGuard : noncopyable
 {
  public:
@@ -219,14 +229,14 @@ class SCOPED_CAPABILITY MutexLockGuard : noncopyable
   }
 
  private:
-
+  // 并不负责mutex的生存周期，只是它会管理它的加锁和关锁关系。关联关系。
   MutexLock& mutex_;
 };
 
 }  // namespace muduo
 
 // Prevent misuse like:
-// MutexLockGuard(mutex_);
+// MutexLockGuard(mutex_); 也就是不能构造一个匿名的该对象。
 // A tempory object doesn't hold the lock for long!
 #define MutexLockGuard(x) error "Missing guard object name"
 
