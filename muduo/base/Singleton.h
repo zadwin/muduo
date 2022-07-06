@@ -37,7 +37,7 @@ class Singleton : noncopyable
 
   static T& instance()
   {
-    pthread_once(&ponce_, &Singleton::init);
+    pthread_once(&ponce_, &Singleton::init);   // 保证函数只被调用一次。
     assert(value_ != NULL);
     return *value_;
   }
@@ -45,15 +45,17 @@ class Singleton : noncopyable
  private:
   static void init()
   {
-    value_ = new T();
+    value_ = new T();  // 这个函数只会执行一次，因此也就只会产生一个对象。
     if (!detail::has_no_destroy<T>::value)
     {
-      ::atexit(destroy);
+      ::atexit(destroy);  // 相当于是登记销毁函数。整个程序结束的时候会自动销毁。
     }
   }
 
   static void destroy()
   {
+    // 因为我们下面要销毁对象value_，因此必须保证该对象是完全类型，比如不能是指针。
+    // 如果不满足会在编译期间报错，这是一个数组。
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     T_must_be_complete_type dummy; (void) dummy;
 

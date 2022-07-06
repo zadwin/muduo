@@ -72,9 +72,9 @@ struct ThreadData
   {
     *tid_ = muduo::CurrentThread::tid();
     tid_ = NULL;
-    latch_->countDown();
+    latch_->countDown();  // 运行前就对其进行了 -- 操作。
     latch_ = NULL;
-
+    // 这里就表示线程启动了。
     muduo::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
     ::prctl(PR_SET_NAME, muduo::CurrentThread::t_threadName);
     try
@@ -174,7 +174,7 @@ void Thread::setDefaultName()
   }
 }
 
-// 线程的启动函数。
+// 线程的启动函数。这里还没有运行程序，只是处于准备阶段。
 void Thread::start()
 {
   assert(!started_);

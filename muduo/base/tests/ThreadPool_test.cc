@@ -36,6 +36,7 @@ void test(int maxSize)
   LOG_WARN << "Done";
 
   muduo::CountDownLatch latch(1);
+  // 绑定一个类的成员函数。
   pool.run(std::bind(&muduo::CountDownLatch::countDown, &latch));
   latch.wait();
   pool.stop();

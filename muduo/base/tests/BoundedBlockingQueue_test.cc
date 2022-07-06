@@ -12,7 +12,7 @@ class Test
 {
  public:
   Test(int numThreads)
-    : queue_(20),
+    : queue_(20),   // 初始队列的大小。
       latch_(numThreads)
   {
     threads_.reserve(numThreads);
@@ -24,7 +24,7 @@ class Test
             std::bind(&Test::threadFunc, this), muduo::string(name)));
     }
     for (auto& thr : threads_)
-    {
+    {  // 启动每个线程。
       thr->start();
     }
   }
@@ -35,7 +35,7 @@ class Test
     latch_.wait();
     printf("all threads started\n");
     for (int i = 0; i < times; ++i)
-    {
+    { // 一共会生产times个。
       char buf[32];
       snprintf(buf, sizeof buf, "hello %d", i);
       queue_.put(buf);
@@ -59,7 +59,7 @@ class Test
  private:
 
   void threadFunc()
-  {
+  {   // 线程开始消费资源。
     printf("tid=%d, %s started\n",
            muduo::CurrentThread::tid(),
            muduo::CurrentThread::name());
@@ -102,8 +102,8 @@ int main()
 {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
   testMove();
-  Test t(5);
-  t.run(100);
+  Test t(5);   // 创建了5个线程。
+  t.run(100);  // 主线程生产了100个资源。
   t.joinAll();
 
   printf("number of created threads %d\n", muduo::Thread::numCreated());

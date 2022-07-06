@@ -29,8 +29,9 @@ class Condition : noncopyable
 
   void wait()
   {
-    MutexLock::UnassignGuard ug(mutex_);
-    MCHECK(pthread_cond_wait(&pcond_, mutex_.getPthreadMutex()));
+    MutexLock::UnassignGuard ug(mutex_);                            // 先将holder_清零，防止出现死锁。但是如何去表明这个是有效的呢。
+    // ug析构的时候，会将holder_置为该线程的tid
+    MCHECK(pthread_cond_wait(&pcond_, mutex_.getPthreadMutex()));   // 线程条件等待。
   }
 
   // returns true if time out, false otherwise.
@@ -38,17 +39,17 @@ class Condition : noncopyable
 
   void notify()
   {
-    MCHECK(pthread_cond_signal(&pcond_));
+    MCHECK(pthread_cond_signal(&pcond_));   // 表示资源可用。
   }
 
   void notifyAll()
   {
-    MCHECK(pthread_cond_broadcast(&pcond_));
+    MCHECK(pthread_cond_broadcast(&pcond_));  // 通常表示条件变化。条件是不是同一个，是同一个，因为线程会继承进程中的信息。
   }
 
  private:
-  MutexLock& mutex_;
-  pthread_cond_t pcond_;
+  MutexLock& mutex_;  // 锁。
+  pthread_cond_t pcond_;  //  线程条件。
 };
 
 }  // namespace muduo

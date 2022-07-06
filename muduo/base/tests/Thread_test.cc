@@ -38,7 +38,7 @@ class Foo
   }
 
   void memberFunc()
-  {
+  { // 如果我们取这个函数的地址，那它就是一个普通的函数，因此不同通过何种方式调用都需要将this或是实例对象传递过去。
     printf("tid=%d, Foo::x_=%f\n", muduo::CurrentThread::tid(), x_);
   }
 

@@ -172,7 +172,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable
 
  private:
   friend class Condition;
-
+  // 释放锁的拥有者。
   class UnassignGuard : noncopyable
   {
    public:

@@ -52,7 +52,7 @@ class Thread : noncopyable
   pid_t      tid_;  // 线程的真实pid
   ThreadFunc func_; // 回调函数。
   string     name_; // 线程的名称。
-  CountDownLatch latch_;
+  CountDownLatch latch_; // 这是一个倒计时门闩类。
   // 这里就是一个int类型的意思。
   static AtomicInt32 numCreated_; // 创建线程的数量。这里都只是声明，静态成员变量。
 };

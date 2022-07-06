@@ -39,6 +39,7 @@ void ThreadPool::start(int numThreads)
   {
     char id[32];
     snprintf(id, sizeof id, "%d", i+1);
+    // 创建这么多个线程。
     threads_.emplace_back(new muduo::Thread(
           std::bind(&ThreadPool::runInThread, this), name_+id));
     threads_[i]->start();
@@ -127,7 +128,7 @@ void ThreadPool::runInThread()
     }
     while (running_)
     {
-      Task task(take());
+      Task task(take()); // 获取任务。
       if (task)
       {
         task();

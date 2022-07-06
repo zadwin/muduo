@@ -30,8 +30,9 @@ class ThreadLocal : noncopyable
 
   T& value()
   {
+    // 通过pkey_实现线程的私有变量。
     T* perThreadValue = static_cast<T*>(pthread_getspecific(pkey_));
-    if (!perThreadValue)
+    if (!perThreadValue)  // 如果没有创建实例对象，则通过下面的语句创建一个对象。
     {
       T* newObj = new T();
       MCHECK(pthread_setspecific(pkey_, newObj));
@@ -45,13 +46,14 @@ class ThreadLocal : noncopyable
   static void destructor(void *x)
   {
     T* obj = static_cast<T*>(x);
+    // 检查是否是一个完全类型。
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     T_must_be_complete_type dummy; (void) dummy;
     delete obj;
   }
 
  private:
-  pthread_key_t pkey_;
+  pthread_key_t pkey_;   // 线程的key。
 };
 
 }  // namespace muduo
