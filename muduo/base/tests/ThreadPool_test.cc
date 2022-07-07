@@ -20,26 +20,26 @@ void printString(const std::string& str)
 void test(int maxSize)
 {
   LOG_WARN << "Test ThreadPool with max queue size = " << maxSize;
-  muduo::ThreadPool pool("MainThreadPool");
-  pool.setMaxQueueSize(maxSize);
-  pool.start(5);
+  muduo::ThreadPool pool("MainThreadPool");   // 创建了一个线程池。
+  pool.setMaxQueueSize(maxSize);                   // 指定线程池的大小。
+  pool.start(5);                                               // 线程的数量。
 
-  LOG_WARN << "Adding";
-  pool.run(print);
+  LOG_WARN << "Adding";                             // 日志程序。
+  pool.run(print);                                            // 添加任务。
   pool.run(print);
   for (int i = 0; i < 100; ++i)
   {
     char buf[32];
     snprintf(buf, sizeof buf, "task %d", i);
-    pool.run(std::bind(printString, std::string(buf)));
+    pool.run(std::bind(printString, std::string(buf)));     // 再次添加  100 个任务。
   }
   LOG_WARN << "Done";
 
-  muduo::CountDownLatch latch(1);
-  // 绑定一个类的成员函数。
+  muduo::CountDownLatch latch(1);   // 这里
+  // 绑定一个类的成员函数。绑定这个 countDown 函数。
   pool.run(std::bind(&muduo::CountDownLatch::countDown, &latch));
-  latch.wait();
-  pool.stop();
+  latch.wait();     // 等待条件满足，目的只是为了能够让程序执行下去。
+  pool.stop();     // 最后停止线程库，并且释放资源。
 }
 
 /*

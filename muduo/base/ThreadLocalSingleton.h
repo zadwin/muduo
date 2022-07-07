@@ -13,14 +13,14 @@
 
 namespace muduo
 {
-
+// 大部分为静态成员。模版类。
 template<typename T>
 class ThreadLocalSingleton : noncopyable
 {
  public:
   ThreadLocalSingleton() = delete;
   ~ThreadLocalSingleton() = delete;
-
+  // 获取对象。
   static T& instance()
   {
     if (!t_value_)
@@ -51,6 +51,7 @@ class ThreadLocalSingleton : noncopyable
    public:
     Deleter()
     {
+      // 创建pkey。
       pthread_key_create(&pkey_, &ThreadLocalSingleton::destructor);
     }
 
@@ -60,16 +61,16 @@ class ThreadLocalSingleton : noncopyable
     }
 
     void set(T* newObj)
-    {
+    { // 将对象和pkey进行绑定。
       assert(pthread_getspecific(pkey_) == NULL);
       pthread_setspecific(pkey_, newObj);
     }
 
-    pthread_key_t pkey_;
+    pthread_key_t pkey_;  // 这里还什么了 pkey ，每个线程都有。
   };
 
-  static __thread T* t_value_;
-  static Deleter deleter_;
+  static __thread T* t_value_;  // 线程本地数据。
+  static Deleter deleter_;  // 这些都是静态的。
 };
 
 template<typename T>

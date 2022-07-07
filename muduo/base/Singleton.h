@@ -37,6 +37,7 @@ class Singleton : noncopyable
 
   static T& instance()
   {
+    // 因此也就只会new出一个对象。这个函数是线程安全的。
     pthread_once(&ponce_, &Singleton::init);   // 保证函数只被调用一次。
     assert(value_ != NULL);
     return *value_;
@@ -64,11 +65,12 @@ class Singleton : noncopyable
   }
 
  private:
-  static pthread_once_t ponce_;
+  static pthread_once_t ponce_;  // 这个变量是用了判断某个函数是否还能够执行。
   static T*             value_;
 };
 
 template<typename T>
+// 采用这个初始值保证初始化函数只会执行一次。
 pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 
 template<typename T>

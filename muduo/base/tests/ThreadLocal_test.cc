@@ -41,7 +41,7 @@ void print()
 
 void threadFunc()
 {
-  print();
+  print();  // 此处因为要通过key去查看对象，因此每个线程的都不样，需要重新去获取。
   testObj1.value().setName("changed 1");
   testObj2.value().setName("changed 42");
   print();
@@ -57,5 +57,7 @@ int main()
   testObj2.value().setName("main two");
   print();
 
+  //  在线程中禁止调用exit函数，否则会导致整个进程退出，取而代之的是调用pthread_exit函数，这个函数是使一个线程退出，
+  //  如果主线程调用pthread_exit函数也不会使整个进程退出，不影响其他线程的执行。
   pthread_exit(0);
 }

@@ -32,7 +32,7 @@ void print()
 {
   printf("tid=%d, %p name=%s\n",
          muduo::CurrentThread::tid(),
-         &STL,
+         &STL,  // 输出的这个就相当于是Test对象。
          STL.name().c_str());
 }
 
@@ -46,6 +46,7 @@ void threadFunc(const char* changeTo)
 
 int main()
 {
+  //  其实也就相当于是 ThreadLocal 是单例的。但是意义是什么？——直接单例Test对象不久可以吗。
   STL.setName("main one");
   muduo::Thread t1(std::bind(threadFunc, "thread1"));
   muduo::Thread t2(std::bind(threadFunc, "thread2"));
@@ -54,5 +55,5 @@ int main()
   t1.join();
   print();
   t2.join();
-  pthread_exit(0);
+  pthread_exit(0);  // 这里应该也就是主线程结束。
 }

@@ -30,7 +30,8 @@ class Condition : noncopyable
   void wait()
   {
     MutexLock::UnassignGuard ug(mutex_);                            // 先将holder_清零，防止出现死锁。但是如何去表明这个是有效的呢。
-    // ug析构的时候，会将holder_置为该线程的tid
+    // ug析构的时候，会将holder_置为该线程的tid， 通过互斥变量去绑定条件变量。
+    // 其实主要就是为了能够更好的通知各个线程。
     MCHECK(pthread_cond_wait(&pcond_, mutex_.getPthreadMutex()));   // 线程条件等待。
   }
 

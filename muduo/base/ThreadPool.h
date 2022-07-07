@@ -20,7 +20,7 @@ namespace muduo
 class ThreadPool : noncopyable
 {
  public:
-  typedef std::function<void ()> Task;
+  typedef std::function<void ()> Task;  // 任务函数。
 
   explicit ThreadPool(const string& nameArg = string("ThreadPool"));
   ~ThreadPool();
@@ -28,7 +28,7 @@ class ThreadPool : noncopyable
   // Must be called before start().
   void setMaxQueueSize(int maxSize) { maxQueueSize_ = maxSize; }
   void setThreadInitCallback(const Task& cb)
-  { threadInitCallback_ = cb; }
+  { threadInitCallback_ = cb; }   // 设置初始任务。
 
   void start(int numThreads);
   void stop();
@@ -55,10 +55,12 @@ class ThreadPool : noncopyable
   Condition notEmpty_ GUARDED_BY(mutex_);
   Condition notFull_ GUARDED_BY(mutex_);
   string name_;
-  Task threadInitCallback_;
+  Task threadInitCallback_; // 这里是任务。
+  // 一个线程向量。
   std::vector<std::unique_ptr<muduo::Thread>> threads_;
+  // 任务队列。
   std::deque<Task> queue_ GUARDED_BY(mutex_);
-  size_t maxQueueSize_;
+  size_t maxQueueSize_;             // 任务队列的大小。
   bool running_;
 };
 

@@ -20,6 +20,8 @@ class ThreadLocal : noncopyable
  public:
   ThreadLocal()
   {
+    // 创建一个key，并且制定销毁函数。
+    // 那么当每个线程结束时，系统将调用这个函数来释放绑定在这个键上的内存块。
     MCHECK(pthread_key_create(&pkey_, &ThreadLocal::destructor));
   }
 
@@ -53,7 +55,7 @@ class ThreadLocal : noncopyable
   }
 
  private:
-  pthread_key_t pkey_;   // 线程的key。
+  pthread_key_t pkey_;   // 线程的key。其实也就是为了能够保证每个线程拥有自己的变量。
 };
 
 }  // namespace muduo

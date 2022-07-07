@@ -47,11 +47,13 @@ void threadFunc()
          muduo::CurrentThread::tid(),
          &muduo::Singleton<Test>::instance(),
          muduo::Singleton<Test>::instance().name().c_str());
+  // 但是好像没有实现互斥操作。
   muduo::Singleton<Test>::instance().setName("only one, changed");
 }
 
 int main()
 {
+  // 也就是这一个对象被多个线程共用。
   muduo::Singleton<Test>::instance().setName("only one");
   muduo::Thread t1(threadFunc);
   t1.start();
