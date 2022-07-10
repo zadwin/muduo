@@ -26,6 +26,7 @@ class Test : muduo::noncopyable
   muduo::string name_;
 };
 
+// 线程本地最后还是通过pkey_实现线程的私有化。也就是从头到尾我只有这么一个  ThreadLocal<Test>的对象在整个程序中。
 #define STL muduo::Singleton<muduo::ThreadLocal<Test> >::instance().value()
 
 void print()

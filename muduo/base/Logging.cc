@@ -34,7 +34,7 @@ class LoggerImpl
   const char* basename_;
 };
 */
-
+// 每个线程所独有的。
 __thread char t_errnobuf[512];
 __thread char t_time[64];
 __thread time_t t_lastSecond;
@@ -43,9 +43,10 @@ const char* strerror_tl(int savedErrno)
 {
   return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
 }
-
+// 获取全局的日志级别。
 Logger::LogLevel initLogLevel()
 {
+  // 首先去找是否存在该环境变量，如果没有环境变量则默认为INFO级别。
   if (::getenv("MUDUO_LOG_TRACE"))
     return Logger::TRACE;
   else if (::getenv("MUDUO_LOG_DEBUG"))
@@ -179,7 +180,7 @@ Logger::Logger(SourceFile file, int line)
 }
 
 Logger::Logger(SourceFile file, int line, LogLevel level, const char* func)
-  : impl_(level, 0, file, line)
+  : impl_(level, 0, file, line)  //  构造的时候包含了等级、文件、行等等。
 {
   impl_.stream_ << func << ' ';
 }
@@ -195,7 +196,7 @@ Logger::Logger(SourceFile file, int line, bool toAbort)
 }
 
 Logger::~Logger()
-{
+{  // 当销毁这个类的时候，就开始将缓存区的内容输出到标准输出或者是文件中。
   impl_.finish();
   const LogStream::Buffer& buf(stream().buffer());
   g_output(buf.data(), buf.length());

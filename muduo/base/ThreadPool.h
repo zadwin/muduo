@@ -51,8 +51,8 @@ class ThreadPool : noncopyable
   void runInThread();
   Task take();
 
-  mutable MutexLock mutex_;
-  Condition notEmpty_ GUARDED_BY(mutex_);
+  mutable MutexLock mutex_;  // 不管是任务还是线程都是需要通过一个互斥变量来完成的。
+  Condition notEmpty_ GUARDED_BY(mutex_);  // 这都是条件变量。
   Condition notFull_ GUARDED_BY(mutex_);
   string name_;
   Task threadInitCallback_; // 这里是任务。

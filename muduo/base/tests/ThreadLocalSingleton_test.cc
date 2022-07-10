@@ -42,7 +42,7 @@ void threadFunc(const char* changeTo)
 
 int main()
 {
-  // 单例模式。
+  // 单例模式。这种模式就最好是主函数先直接初始化。
   muduo::ThreadLocalSingleton<Test>::instance().setName("main one");
   muduo::Thread t1(std::bind(threadFunc, "thread1"));
   muduo::Thread t2(std::bind(threadFunc, "thread2"));

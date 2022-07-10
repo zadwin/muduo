@@ -13,7 +13,7 @@ namespace muduo
 {
 
 class TimeZone;
-
+// 日志类
 class Logger
 {
  public:
@@ -29,6 +29,7 @@ class Logger
   };
 
   // compile time calculation of basename of source file
+  // 这里还有一个类，源文件类。
   class SourceFile
   {
    public:
@@ -56,7 +57,7 @@ class Logger
       size_ = static_cast<int>(strlen(data_));
     }
 
-    const char* data_;
+    const char* data_; // 一个源文件字符串。
     int size_;
   };
 
@@ -79,8 +80,10 @@ class Logger
 
  private:
 
+
+// 这是一个整合多个类的一个中间类。
 class Impl
-{
+{  // 在这个类中，才包含了流对象。
  public:
   typedef Logger::LogLevel LogLevel;
   Impl(LogLevel level, int old_errno, const SourceFile& file, int line);
@@ -88,13 +91,13 @@ class Impl
   void finish();
 
   Timestamp time_;
-  LogStream stream_;
+  LogStream stream_;   // 将要声明的流对象。
   LogLevel level_;
   int line_;
   SourceFile basename_;
 };
 
-  Impl impl_;
+Impl impl_;
 
 };
 
@@ -105,7 +108,7 @@ inline Logger::LogLevel Logger::logLevel()
   return g_logLevel;
 }
 
-//
+/*
 // CAUTION: do not write:
 //
 // if (good)
@@ -120,9 +123,15 @@ inline Logger::LogLevel Logger::logLevel()
 //     logInfoStream << "Good news";
 //   else
 //     logWarnStream << "Bad news";
-//
+*/
+// 既可以输出到日志文件，也可以输出到标准输出。
+// 判断日志条件的级别，然后选择是否输出，Logger::logLevel() 就是为了去获得当前程序的默认日志级别。
+// 使用也就只是通过这么几个宏来做到的。
+// 参数说明：
+//            1、__FILE__: 说明是在哪个文件，__LINE__的哪一行，__func__的哪个函数输入的日志信息，以及TRACE日志级别。
+//                      疑问：这些参数都是怎么传递进去的。C语言中的__FILE__、__LINE__、__func__和__DATE__等都在头文件#include<stdio.h>中
 #define LOG_TRACE if (muduo::Logger::logLevel() <= muduo::Logger::TRACE) \
-  muduo::Logger(__FILE__, __LINE__, muduo::Logger::TRACE, __func__).stream()
+  muduo::Logger(__FILE__, __LINE__, muduo::Logger::TRACE, __func__).stream()  // 这里就构造对象，因此这里得到的就是一个流对象。
 #define LOG_DEBUG if (muduo::Logger::logLevel() <= muduo::Logger::DEBUG) \
   muduo::Logger(__FILE__, __LINE__, muduo::Logger::DEBUG, __func__).stream()
 #define LOG_INFO if (muduo::Logger::logLevel() <= muduo::Logger::INFO) \
@@ -130,6 +139,7 @@ inline Logger::LogLevel Logger::logLevel()
 #define LOG_WARN muduo::Logger(__FILE__, __LINE__, muduo::Logger::WARN).stream()
 #define LOG_ERROR muduo::Logger(__FILE__, __LINE__, muduo::Logger::ERROR).stream()
 #define LOG_FATAL muduo::Logger(__FILE__, __LINE__, muduo::Logger::FATAL).stream()
+// false 和 true分别表示不会退出程序和会退出程序。
 #define LOG_SYSERR muduo::Logger(__FILE__, __LINE__, false).stream()
 #define LOG_SYSFATAL muduo::Logger(__FILE__, __LINE__, true).stream()
 
@@ -140,6 +150,7 @@ const char* strerror_tl(int savedErrno);
 // Check that the input is non NULL.  This very useful in constructor
 // initializer lists.
 
+// 检查这里是否为空。
 #define CHECK_NOTNULL(val) \
   ::muduo::CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
 

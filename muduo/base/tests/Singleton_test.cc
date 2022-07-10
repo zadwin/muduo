@@ -54,7 +54,7 @@ void threadFunc()
 int main()
 {
   // 也就是这一个对象被多个线程共用。
-  muduo::Singleton<Test>::instance().setName("only one");
+  muduo::Singleton<Test>::instance().setName("only one"); // 先通过主线程生产出来。
   muduo::Thread t1(threadFunc);
   t1.start();
   t1.join();

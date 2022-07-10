@@ -17,7 +17,7 @@ namespace muduo
 template<typename T>
 class ThreadLocalSingleton : noncopyable
 {
- public:
+ public:  // 不能new的。
   ThreadLocalSingleton() = delete;
   ~ThreadLocalSingleton() = delete;
   // 获取对象。
@@ -26,7 +26,7 @@ class ThreadLocalSingleton : noncopyable
     if (!t_value_)
     {
       t_value_ = new T();
-      deleter_.set(t_value_);
+      deleter_.set(t_value_);     // 为了能够是的指针所指向的对象最后能够销毁。
     }
     return *t_value_;
   }
@@ -51,7 +51,7 @@ class ThreadLocalSingleton : noncopyable
    public:
     Deleter()
     {
-      // 创建pkey。
+      // 创建pkey。并且指定删除器。
       pthread_key_create(&pkey_, &ThreadLocalSingleton::destructor);
     }
 
@@ -63,14 +63,14 @@ class ThreadLocalSingleton : noncopyable
     void set(T* newObj)
     { // 将对象和pkey进行绑定。
       assert(pthread_getspecific(pkey_) == NULL);
-      pthread_setspecific(pkey_, newObj);
+      pthread_setspecific(pkey_, newObj);   // 与线程pkey_进行绑定。这样最后才能调用销毁函数。
     }
-
+    // POSIX线程库的线程特定数据（TSD）来实现的。
     pthread_key_t pkey_;  // 这里还什么了 pkey ，每个线程都有。
   };
-
-  static __thread T* t_value_;  // 线程本地数据。
-  static Deleter deleter_;  // 这些都是静态的。
+  // 指针式POD类型。主要就是去和 pkey_  相绑定。
+  static __thread T* t_value_;  // 线程本地数据。   // 每个线程都本地拥有，并且是static类型的。这个类是不需要new的。
+  static Deleter deleter_;  // 这些都是静态的。利用这个类来删除new的T对象
 };
 
 template<typename T>

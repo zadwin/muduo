@@ -72,23 +72,25 @@ class FixedBuffer : noncopyable
 
   void (*cookie_)();
   char data_[SIZE];
-  char* cur_;
+  char* cur_;  // 大概率就是用来接收日志消息的缓冲池。
 };
 
 }  // namespace detail
 
+// 采用这个对象所继承的一些东西，去进行输入。
+// 流对象复杂将日志信息写入到内存中。
 class LogStream : noncopyable
 {
   typedef LogStream self;
  public:
-  typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;
+  typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;  // 固定的缓存池。
 
   self& operator<<(bool v)
   {
     buffer_.append(v ? "1" : "0", 1);
     return *this;
   }
-
+  // 重载了这一些操作符。
   self& operator<<(short);
   self& operator<<(unsigned short);
   self& operator<<(int);
@@ -110,7 +112,7 @@ class LogStream : noncopyable
 
   self& operator<<(char v)
   {
-    buffer_.append(&v, 1);
+    buffer_.append(&v, 1);   // 这里相当于只是将它append到了一个池子里面。
     return *this;
   }
 
@@ -137,7 +139,7 @@ class LogStream : noncopyable
 
   self& operator<<(const string& v)
   {
-    buffer_.append(v.c_str(), v.size());
+    buffer_.append(v.c_str(), v.size());  // 基本都是用append。
     return *this;
   }
 
@@ -163,7 +165,7 @@ class LogStream : noncopyable
   template<typename T>
   void formatInteger(T);
 
-  Buffer buffer_;
+  Buffer buffer_;   // 缓冲池对象。
 
   static const int kMaxNumericSize = 48;
 };

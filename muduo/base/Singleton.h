@@ -70,7 +70,7 @@ class Singleton : noncopyable
 };
 
 template<typename T>
-// 采用这个初始值保证初始化函数只会执行一次。
+// 采用这个初始值保证初始化函数只会执行一次。通过线程只能执行一次的方式去获得单例对象。
 pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 
 template<typename T>
