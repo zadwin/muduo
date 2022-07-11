@@ -34,7 +34,7 @@ namespace muduo
 {
 namespace detail
 {
-
+// 前面的987只是为了做偏移。
 const char digits[] = "9876543210123456789";
 const char* zero = digits + 9;
 static_assert(sizeof(digits) == 20, "wrong number of digits");
@@ -51,9 +51,9 @@ size_t convert(char buf[], T value)
 
   do
   {
-    int lsd = static_cast<int>(i % 10);
+    int lsd = static_cast<int>(i % 10); // 得到最后一个数字。
     i /= 10;
-    *p++ = zero[lsd];
+    *p++ = zero[lsd];     // 将转换好的字符存放进去。zero是一个数组。
   } while (i != 0);
 
   if (value < 0)
@@ -61,11 +61,12 @@ size_t convert(char buf[], T value)
     *p++ = '-';
   }
   *p = '\0';
-  std::reverse(buf, p);
+  std::reverse(buf, p);  // 然后还要将数字进行逆转。
 
   return p - buf;
 }
-
+// uintprt_t 是一个类型，最后也就变成了数值类型。
+// 以16进制的方式。
 size_t convertHex(char buf[], uintptr_t value)
 {
   uintptr_t i = value;
@@ -233,12 +234,13 @@ void LogStream::staticCheck()
                 "kMaxNumericSize is large enough");
 }
 
+// 这是一个成员函数模版，这个模版一般只用来处理数值类型。
 template<typename T>
 void LogStream::formatInteger(T v)
-{
+{ // 这样kMaxNumericSize才能够起作用。
   if (buffer_.avail() >= kMaxNumericSize)
   {
-    size_t len = convert(buffer_.current(), v);
+    size_t len = convert(buffer_.current(), v);  // 将所有东西转换成字符串存放进去。
     buffer_.add(len);
   }
 }
@@ -292,14 +294,15 @@ LogStream& LogStream::operator<<(unsigned long long v)
 }
 
 LogStream& LogStream::operator<<(const void* p)
-{
+{ //  对于指针的处理方式。将指针转化成整数。
+  // 但是如果要将整数转换成指针一定要慎用，因为有可能改地址是无效的。
   uintptr_t v = reinterpret_cast<uintptr_t>(p);
   if (buffer_.avail() >= kMaxNumericSize)
   {
     char* buf = buffer_.current();
     buf[0] = '0';
     buf[1] = 'x';
-    size_t len = convertHex(buf+2, v);
+    size_t len = convertHex(buf+2, v);  // 将该地址写入。
     buffer_.add(len+2);
   }
   return *this;
@@ -326,7 +329,7 @@ Fmt::Fmt(const char* fmt, T val)
 }
 
 // Explicit instantiations
-
+// 刻画的特殊类型。
 template Fmt::Fmt(const char* fmt, char);
 
 template Fmt::Fmt(const char* fmt, short);

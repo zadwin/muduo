@@ -74,14 +74,14 @@ class Logger
 
   typedef void (*OutputFunc)(const char* msg, int len);
   typedef void (*FlushFunc)();
-  static void setOutput(OutputFunc);
+  static void setOutput(OutputFunc);  // 这里就能够改变输出的地方。注意这里改变的是输出函数。
   static void setFlush(FlushFunc);
   static void setTimeZone(const TimeZone& tz);
 
  private:
 
 
-// 这是一个整合多个类的一个中间类。
+// 这是一个整合多个类的一个中间类。还负责日志的格式化。
 class Impl
 {  // 在这个类中，才包含了流对象。
  public:

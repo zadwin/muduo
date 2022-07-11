@@ -16,7 +16,7 @@ namespace muduo
 {
 
 using std::string;
-
+// 缓冲池那里用到了该函数。
 inline void memZero(void* p, size_t n)
 {
   memset(p, 0, n);

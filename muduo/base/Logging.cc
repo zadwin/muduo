@@ -102,10 +102,10 @@ void defaultOutput(const char* msg, int len)
 }
 
 void defaultFlush()
-{
+{   // 也是将其输出到标准输出。
   fflush(stdout);
 }
-
+// 以下是两种默认输出方式。
 Logger::OutputFunc g_output = defaultOutput;
 Logger::FlushFunc g_flush = defaultFlush;
 TimeZone g_logTimeZone;
