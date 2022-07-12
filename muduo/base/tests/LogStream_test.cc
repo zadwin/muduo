@@ -6,23 +6,26 @@
 //#define BOOST_TEST_MODULE LogStreamTest
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
+// 这是boost的一个测试单元。这事一个库，本身是应该安装的。
 #include <boost/test/unit_test.hpp>
 
 using muduo::string;
 
+// 测试bool类型。实际上所有的测试都是在检查是否这些所有的类型都按照我们的预期所封装。
 BOOST_AUTO_TEST_CASE(testLogStreamBooleans)
 {
-  muduo::LogStream os;
-  const muduo::LogStream::Buffer& buf = os.buffer();
-  BOOST_CHECK_EQUAL(buf.toString(), string(""));
-  os << true;
+  muduo::LogStream os;  // 构造一个对象。
+  const muduo::LogStream::Buffer& buf = os.buffer();  // 获得构造对象的buffer。
+  BOOST_CHECK_EQUAL(buf.toString(), string(""));    //  判断该buffer是否为空。
+  os << true;   // 将其输出大缓冲区中。
+  // 比较是否相等。
   BOOST_CHECK_EQUAL(buf.toString(), string("1"));
   os << '\n';
   BOOST_CHECK_EQUAL(buf.toString(), string("1\n"));
   os << false;
   BOOST_CHECK_EQUAL(buf.toString(), string("1\n0"));
 }
-
+// 测试整数是否能够成功。
 BOOST_AUTO_TEST_CASE(testLogStreamIntegers)
 {
   muduo::LogStream os;
@@ -34,12 +37,13 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegers)
   BOOST_CHECK_EQUAL(buf.toString(), string("10"));
   os << -1;
   BOOST_CHECK_EQUAL(buf.toString(), string("10-1"));
-  os.resetBuffer();
+  os.resetBuffer();   // 重置缓冲区。
 
   os << 0 << " " << 123 << 'x' << 0x64;
   BOOST_CHECK_EQUAL(buf.toString(), string("0 123x100"));
 }
 
+// 测试了边界值。
 BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits)
 {
   muduo::LogStream os;

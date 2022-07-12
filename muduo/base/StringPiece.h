@@ -36,7 +36,10 @@
 // pass in either a "const char*" or a "string".
 //
 // Arghh!  I wish C++ literals were automatically of type "string".
-
+// 用以实现高效的字符串传递。
+// void foo(const StringPiece& x);
+// 因为我们封装了这样一个类，这里既可以用const char* , 也可以用std::string类型作为参数，并且这里不用拷贝。
+// 高效也就意味着我们尽可能的减少拷贝等操作。
 #ifndef MUDUO_BASE_STRINGPIECE_H
 #define MUDUO_BASE_STRINGPIECE_H
 
@@ -68,6 +71,7 @@ class StringArg // copyable
 
 class StringPiece {
  private:
+  // 两个成员，一个指针一个长度。
   const char*   ptr_;
   int           length_;
 
@@ -128,7 +132,7 @@ class StringPiece {
   bool operator!=(const StringPiece& x) const {
     return !(*this == x);
   }
-
+// 通过宏实现大于小于等操作。
 #define STRINGPIECE_BINARY_PREDICATE(cmp,auxcmp)                             \
   bool operator cmp (const StringPiece& x) const {                           \
     int r = memcmp(ptr_, x.ptr_, length_ < x.length_ ? length_ : x.length_); \

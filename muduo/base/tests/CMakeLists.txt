@@ -47,8 +47,9 @@ target_link_libraries(logging_test muduo_base)
 add_executable(logstream_bench LogStream_bench.cc)
 target_link_libraries(logstream_bench muduo_base)
 
-if(BOOSTTEST_LIBRARY)
+if(BOOSTTEST_LIBRARY) # 首先判断是否安装了这个boost测试单元。
 add_executable(logstream_test LogStream_test.cc)
+# 并且还要链接这个库。
 target_link_libraries(logstream_test muduo_base boost_unit_test_framework)
 add_test(NAME logstream_test COMMAND logstream_test)
 endif()

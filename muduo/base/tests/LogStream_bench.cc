@@ -32,7 +32,7 @@ void benchStringStream()
 
   for (size_t i = 0; i < N; ++i)
   {
-    os << (T)(i);
+    os << (T)(i);  // 旧式的类型转换。
     os.seekp(0, std::ios_base::beg);
   }
   Timestamp end(Timestamp::now());
@@ -48,13 +48,15 @@ void benchLogStream()
   for (size_t i = 0; i < N; ++i)
   {
     os << (T)(i);
-    os.resetBuffer();
+    os.resetBuffer();   // 这里就是重置一下缓冲区，以至于可以再次使用。
   }
   Timestamp end(Timestamp::now());
 
   printf("benchLogStream %f\n", timeDifference(end, start));
 }
 
+// 主要用于测试性能基准测试。
+// 和printf、stringstream等相比较，主要比较时间等信息。
 int main()
 {
   benchPrintf<int>("%d");
