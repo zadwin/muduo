@@ -53,14 +53,14 @@ class EventLoopThreadPool : noncopyable
   { return name_; }
 
  private:
-
-  EventLoop* baseLoop_;
+  // 可以粗略的理解，主IO是用来监听Tcp连接的并且合理分配给其他子IO线程来处理的。
+  EventLoop* baseLoop_;   // 与Acceptor所属相同的EventLoop对象/
   string name_;
   bool started_;
-  int numThreads_;
-  int next_;
-  std::vector<std::unique_ptr<EventLoopThread>> threads_;
-  std::vector<EventLoop*> loops_;
+  int numThreads_;            // 线程的数量。
+  int next_;                        // 新连接到来，所选择的EventLoop对象下标。
+  std::vector<std::unique_ptr<EventLoopThread>> threads_;     // IO线程列表。
+  std::vector<EventLoop*> loops_;                                        // EventLoop列表。
 };
 
 }  // namespace net

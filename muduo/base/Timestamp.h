@@ -126,6 +126,8 @@ inline double timeDifference(Timestamp high, Timestamp low)
 ///
 /// @return timestamp+seconds as Timestamp
 ///
+// 这里是值传递，而不是引用传递。因为这个类就是一个int的整数，没有必要用引用传递。
+// 因此不一定类就要用值传递。
 inline Timestamp addTime(Timestamp timestamp, double seconds)
 {
   int64_t delta = static_cast<int64_t>(seconds * Timestamp::kMicroSecondsPerSecond);

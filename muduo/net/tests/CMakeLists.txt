@@ -16,7 +16,7 @@ target_link_libraries(eventloopthread_unittest muduo_net)
 add_executable(eventloopthreadpool_unittest EventLoopThreadPool_unittest.cc)
 target_link_libraries(eventloopthreadpool_unittest muduo_net)
 
-if(BOOSTTEST_LIBRARY)
+if(BOOSTTEST_LIBRARY)  # 如果安装了这个boost测试库，就会变异这里。
 add_executable(buffer_unittest Buffer_unittest.cc)
 target_link_libraries(buffer_unittest muduo_net boost_unit_test_framework)
 add_test(NAME buffer_unittest COMMAND buffer_unittest)

@@ -44,8 +44,7 @@ const char* strerror_tl(int savedErrno)
   return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
 }
 // 获取全局的日志级别。
-Logger::LogLevel initLogLevel()
-{
+Logger::LogLevel initLogLevel(){
   // 首先去找是否存在该环境变量，如果没有环境变量则默认为INFO级别。
   if (::getenv("MUDUO_LOG_TRACE"))
     return Logger::TRACE;

@@ -24,19 +24,21 @@ LogFile::LogFile(const string& basename,
     flushInterval_(flushInterval),
     checkEveryN_(checkEveryN),
     count_(0),
-    mutex_(threadSafe ? new MutexLock : NULL),
+    // 智能指针会帮我们自动销毁。
+    mutex_(threadSafe ? new MutexLock : NULL), // 一旦构造了mutexlock他就会作用于fileutil类。
     startOfPeriod_(0),
     lastRoll_(0),
     lastFlush_(0)
 {
-  assert(basename.find('/') == string::npos);
-  rollFile();
+  assert(basename.find('/') == string::npos); // 断言是否会找到斜杠。
+  rollFile(); // 第一次先滚动一下，产生一个文件。
 }
 
 LogFile::~LogFile() = default;
 
 void LogFile::append(const char* logline, int len)
 {
+  // 如果是线程安全的则执行下面的这些代码。
   if (mutex_)
   {
     MutexLockGuard lock(*mutex_);
@@ -93,11 +95,11 @@ void LogFile::append_unlocked(const char* logline, int len)
 bool LogFile::rollFile()
 {
   time_t now = 0;
-  string filename = getLogFileName(basename_, &now);
+  string filename = getLogFileName(basename_, &now); // 获取文件的名称
   time_t start = now / kRollPerSeconds_ * kRollPerSeconds_;
 
   if (now > lastRoll_)
-  {
+  { // 判断是否需要新的一个滚动日志。
     lastRoll_ = now;
     lastFlush_ = now;
     startOfPeriod_ = start;
@@ -116,7 +118,7 @@ string LogFile::getLogFileName(const string& basename, time_t* now)
   char timebuf[32];
   struct tm tm;
   *now = time(NULL);
-  gmtime_r(now, &tm); // FIXME: localtime_r ?
+  gmtime_r(now, &tm); // FIXME: localtime_r ?  // 这是一个线程安全的。
   strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
   filename += timebuf;
 

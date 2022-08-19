@@ -67,6 +67,7 @@ class TcpConnection : noncopyable,
   void send(const StringPiece& message);
   // void send(Buffer&& message); // C++11
   void send(Buffer* message);  // this one will swap data
+  // shutdown不是线程安全的。
   void shutdown(); // NOT thread safe, no simultaneous calling
   // void shutdownAndForceCloseAfter(double seconds); // NOT thread safe, no simultaneous calling
   void forceClose();
@@ -131,22 +132,25 @@ class TcpConnection : noncopyable,
   void startReadInLoop();
   void stopReadInLoop();
 
-  EventLoop* loop_;
+  EventLoop* loop_;     // 所有Eventloop
   const string name_;
-  StateE state_;  // FIXME: use atomic variable
+  StateE state_;  // FIXME: use atomic variable，各种连接的状态。
   bool reading_;
   // we don't expose those classes to client.
   std::unique_ptr<Socket> socket_;
   std::unique_ptr<Channel> channel_;
-  const InetAddress localAddr_;
-  const InetAddress peerAddr_;
-  ConnectionCallback connectionCallback_;
-  MessageCallback messageCallback_;
+  const InetAddress localAddr_; // 本地地址。
+  const InetAddress peerAddr_; // 对等地址。
+  // 以下这两个都是从TcpServer中设置的。
+  ConnectionCallback connectionCallback_; // 连接的回调函数。
+  MessageCallback messageCallback_;       // 消息到来的回调函数。
   WriteCompleteCallback writeCompleteCallback_;
   HighWaterMarkCallback highWaterMarkCallback_;
-  CloseCallback closeCallback_;
+  CloseCallback closeCallback_;                // 关闭连接。
   size_t highWaterMark_;
+  // 应用层接收缓冲区。
   Buffer inputBuffer_;
+  // 应用层发送缓冲区。
   Buffer outputBuffer_; // FIXME: use list<Buffer> as output buffer.
   boost::any context_;
   // FIXME: creationTime_, lastReceiveTime_

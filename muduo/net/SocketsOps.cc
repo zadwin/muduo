@@ -27,7 +27,6 @@ namespace
 
 typedef struct sockaddr SA;
 
-
 #if VALGRIND || defined (NO_ACCEPT4)
 void setNonBlockAndCloseOnExec(int sockfd)
 {
@@ -48,7 +47,7 @@ void setNonBlockAndCloseOnExec(int sockfd)
 #endif
 
 }  // namespace
-
+// 强制转换。
 const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in6* addr)
 {
   return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
@@ -73,16 +72,14 @@ const struct sockaddr_in6* sockets::sockaddr_in6_cast(const struct sockaddr* add
 {
   return static_cast<const struct sockaddr_in6*>(implicit_cast<const void*>(addr));
 }
-
 int sockets::createNonblockingOrDie(sa_family_t family)
 {
-#if VALGRIND
+#if VALGRIND    // 内存检测工具。
   int sockfd = ::socket(family, SOCK_STREAM, IPPROTO_TCP);
   if (sockfd < 0)
   {
     LOG_SYSFATAL << "sockets::createNonblockingOrDie";
   }
-
   setNonBlockAndCloseOnExec(sockfd);
 #else
   int sockfd = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
@@ -122,8 +119,7 @@ int sockets::accept(int sockfd, struct sockaddr_in6* addr)
   int connfd = ::accept4(sockfd, sockaddr_cast(addr),
                          &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
 #endif
-  if (connfd < 0)
-  {
+  if (connfd < 0){      // 如果出错了。
     int savedErrno = errno;
     LOG_SYSERR << "Socket::accept";
     switch (savedErrno)
@@ -165,7 +161,7 @@ ssize_t sockets::read(int sockfd, void *buf, size_t count)
 {
   return ::read(sockfd, buf, count);
 }
-
+// ruadv和read不同之处在于接收数据可以填充到多个缓冲区中。
 ssize_t sockets::readv(int sockfd, const struct iovec *iov, int iovcnt)
 {
   return ::readv(sockfd, iov, iovcnt);
@@ -183,7 +179,7 @@ void sockets::close(int sockfd)
     LOG_SYSERR << "sockets::close";
   }
 }
-
+// 只关闭写的这一半。
 void sockets::shutdownWrite(int sockfd)
 {
   if (::shutdown(sockfd, SHUT_WR) < 0)
@@ -191,7 +187,7 @@ void sockets::shutdownWrite(int sockfd)
     LOG_SYSERR << "sockets::shutdownWrite";
   }
 }
-
+// 将地址转换为IP于端口的形式。
 void sockets::toIpPort(char* buf, size_t size,
                        const struct sockaddr* addr)
 {
@@ -200,10 +196,11 @@ void sockets::toIpPort(char* buf, size_t size,
     buf[0] = '[';
     toIp(buf+1, size-1, addr);
     size_t end = ::strlen(buf);
+    // 网络地址和端口的转换。
     const struct sockaddr_in6* addr6 = sockaddr_in6_cast(addr);
     uint16_t port = sockets::networkToHost16(addr6->sin6_port);
     assert(size > end);
-    snprintf(buf+end, size-end, "]:%u", port);
+    snprintf(buf+end, size-end, "]:%u", port);    // 进行一个拼接。
     return;
   }
   toIp(buf, size, addr);
@@ -211,7 +208,7 @@ void sockets::toIpPort(char* buf, size_t size,
   const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
   uint16_t port = sockets::networkToHost16(addr4->sin_port);
   assert(size > end);
-  snprintf(buf+end, size-end, ":%u", port);
+  snprintf(buf+end, size-end, ":%u", port); // 格式化。
 }
 
 void sockets::toIp(char* buf, size_t size,
@@ -221,7 +218,7 @@ void sockets::toIp(char* buf, size_t size,
   {
     assert(size >= INET_ADDRSTRLEN);
     const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
-    ::inet_ntop(AF_INET, &addr4->sin_addr, buf, static_cast<socklen_t>(size));
+    ::inet_ntop(AF_INET, &addr4->sin_addr, buf, static_cast<socklen_t>(size));  // 将网络地址。
   }
   else if (addr->sa_family == AF_INET6)
   {
@@ -230,7 +227,6 @@ void sockets::toIp(char* buf, size_t size,
     ::inet_ntop(AF_INET6, &addr6->sin6_addr, buf, static_cast<socklen_t>(size));
   }
 }
-
 void sockets::fromIpPort(const char* ip, uint16_t port,
                          struct sockaddr_in* addr)
 {
@@ -267,7 +263,7 @@ int sockets::getSocketError(int sockfd)
     return optval;
   }
 }
-
+// 获取本地址。
 struct sockaddr_in6 sockets::getLocalAddr(int sockfd)
 {
   struct sockaddr_in6 localaddr;
@@ -279,7 +275,7 @@ struct sockaddr_in6 sockets::getLocalAddr(int sockfd)
   }
   return localaddr;
 }
-
+// 获取对等方地址。
 struct sockaddr_in6 sockets::getPeerAddr(int sockfd)
 {
   struct sockaddr_in6 peeraddr;

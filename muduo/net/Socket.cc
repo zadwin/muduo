@@ -21,6 +21,7 @@ using namespace muduo::net;
 
 Socket::~Socket()
 {
+  // 通过这里关闭文件描述符，也就是体现了RAII手法。
   sockets::close(sockfd_);
 }
 
@@ -76,14 +77,15 @@ int Socket::accept(InetAddress* peeraddr)
   {
     peeraddr->setSockAddrInet6(addr);
   }
-  return connfd;
+  return connfd; // 连接打开的文件描述符。
 }
 
 void Socket::shutdownWrite()
 {
   sockets::shutdownWrite(sockfd_);
 }
-
+// Nagle算法可以一定程度上避免网络拥塞。——也就是如果平凡发送数据包，系统会等待后续更多的包过来一起发送。
+// 禁用Nagle算法，可以避免连续发包出现延迟，这对于编写低延迟的网络服务很重要。
 void Socket::setTcpNoDelay(bool on)
 {
   int optval = on ? 1 : 0;
@@ -91,7 +93,8 @@ void Socket::setTcpNoDelay(bool on)
                &optval, static_cast<socklen_t>(sizeof optval));
   // FIXME CHECK
 }
-
+// 设置地址重复利用。一般来说，一个端口释放后会等待两分钟之后才能被使用，SO_REUSEADDR是让端口释放后立即就可以被再次使用。
+// SO_REUSEADDR用于对TCP套接字处理TIME_WAIT状态下的socekt，才可以被重复绑定使用。允许在同一个端口上启动同一服务器的多个实例。
 void Socket::setReuseAddr(bool on)
 {
   int optval = on ? 1 : 0;
@@ -99,7 +102,7 @@ void Socket::setReuseAddr(bool on)
                &optval, static_cast<socklen_t>(sizeof optval));
   // FIXME CHECK
 }
-
+// TCP keepalive是指定期探测连接是否存在，如果应用层有心跳的话，这个选项不是必须要设置的。
 void Socket::setReusePort(bool on)
 {
 #ifdef SO_REUSEPORT

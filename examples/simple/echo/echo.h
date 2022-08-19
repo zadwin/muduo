@@ -7,6 +7,7 @@
 class EchoServer
 {
  public:
+  // 事件+监听地址和端口
   EchoServer(muduo::net::EventLoop* loop,
              const muduo::net::InetAddress& listenAddr);
 
@@ -19,7 +20,7 @@ class EchoServer
                  muduo::net::Buffer* buf,
                  muduo::Timestamp time);
 
-  muduo::net::TcpServer server_;
+  muduo::net::TcpServer server_;  // 这是一个 TCP server
 };
 
 #endif  // MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H

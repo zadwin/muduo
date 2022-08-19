@@ -10,6 +10,7 @@ int main()
 {
   string result;
   int64_t size = 0;
+  // 测试读取这些文件会有什么样的效果。
   int err = FileUtil::readFile("/proc/self", 1024, &result, &size);
   printf("%d %zd %" PRIu64 "\n", err, result.size(), size);
   err = FileUtil::readFile("/proc/self", 1024, &result, NULL);

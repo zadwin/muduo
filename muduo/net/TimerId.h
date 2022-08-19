@@ -22,27 +22,26 @@ class Timer;
 
 ///
 /// An opaque identifier, for canceling Timer.
+// 共外部使用。
 ///
 class TimerId : public muduo::copyable
 {
  public:
   TimerId()
     : timer_(NULL),
-      sequence_(0)
-  {
+      sequence_(0){
   }
 
   TimerId(Timer* timer, int64_t seq)
     : timer_(timer),
-      sequence_(seq)
-  {
+      sequence_(seq){
   }
 
   // default copy-ctor, dtor and assignment are okay
 
   friend class TimerQueue;
-
- private:
+// 定时器的序号和地址。
+private:
   Timer* timer_;
   int64_t sequence_;
 };

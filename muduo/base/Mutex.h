@@ -236,7 +236,7 @@ class SCOPED_CAPABILITY MutexLockGuard : noncopyable
 }  // namespace muduo
 
 // Prevent misuse like:
-// MutexLockGuard(mutex_); 也就是不能构造一个匿名的该对象。
+// MutexLockGuard(mutex_); 也就是不能构造一个匿名的该对象，因为它会立刻被销毁。
 // A tempory object doesn't hold the lock for long!
 #define MutexLockGuard(x) error "Missing guard object name"
 

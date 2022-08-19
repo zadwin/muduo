@@ -136,7 +136,8 @@ void CurrentThread::sleepUsec(int64_t usec)
   struct timespec ts = { 0, 0 };
   ts.tv_sec = static_cast<time_t>(usec / Timestamp::kMicroSecondsPerSecond);
   ts.tv_nsec = static_cast<long>(usec % Timestamp::kMicroSecondsPerSecond * 1000);
-  ::nanosleep(&ts, NULL);
+  // nanosleep() 函数会导致当前的线程将暂停执行, 直到rqtp参数所指定的时间间隔。
+  // 或者在指定时间间隔内有信号传递到当前线程，将引起当前线程调用信号捕获函数或终止该线程。 ::nanosleep(&ts, NULL);
 }
 
 // 静态成员变量，是原子性的。

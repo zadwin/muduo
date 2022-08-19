@@ -31,11 +31,12 @@ class InetAddress;
 ///
 /// It closes the sockfd when desctructs.
 /// It's thread safe, all operations are delagated to OS.
+// 一个socket，不能拷贝。包含一些和 scoket 相关的操作。
 class Socket : noncopyable
 {
  public:
   explicit Socket(int sockfd)
-    : sockfd_(sockfd)
+    : sockfd_(sockfd)   // 是一个已经创建好的文件描述符。
   { }
 
   // Socket(Socket&&) // move constructor in C++11
@@ -80,7 +81,7 @@ class Socket : noncopyable
   void setKeepAlive(bool on);
 
  private:
-  const int sockfd_;
+  const int sockfd_;    // 文件描述符。
 };
 
 }  // namespace net

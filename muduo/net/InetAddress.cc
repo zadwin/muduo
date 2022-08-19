@@ -51,50 +51,44 @@ static_assert(offsetof(sockaddr_in, sin_family) == 0, "sin_family offset 0");
 static_assert(offsetof(sockaddr_in6, sin6_family) == 0, "sin6_family offset 0");
 static_assert(offsetof(sockaddr_in, sin_port) == 2, "sin_port offset 2");
 static_assert(offsetof(sockaddr_in6, sin6_port) == 2, "sin6_port offset 2");
-
-InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6)
-{
+// 当没有指定ip的时候的做法，只有端口号。
+InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6){
   static_assert(offsetof(InetAddress, addr6_) == 0, "addr6_ offset 0");
   static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
-  if (ipv6)
-  {
+  if (ipv6){  // 还必须得区分ip的类型。
     memZero(&addr6_, sizeof addr6_);
     addr6_.sin6_family = AF_INET6;
     in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
     addr6_.sin6_addr = ip;
     addr6_.sin6_port = sockets::hostToNetwork16(portArg);
-  }
-  else
-  {
+  }else{
     memZero(&addr_, sizeof addr_);
     addr_.sin_family = AF_INET;
     in_addr_t ip = loopbackOnly ? kInaddrLoopback : kInaddrAny;
+    // 主机字节序转换成网络字节序。为什么要转换呢？
     addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
     addr_.sin_port = sockets::hostToNetwork16(portArg);
   }
 }
-
+// 如果是有ip的情况下。
 InetAddress::InetAddress(StringArg ip, uint16_t portArg, bool ipv6)
 {
-  if (ipv6 || strchr(ip.c_str(), ':'))
-  {
+  if (ipv6 || strchr(ip.c_str(), ':')){
     memZero(&addr6_, sizeof addr6_);
     sockets::fromIpPort(ip.c_str(), portArg, &addr6_);
-  }
-  else
-  {
+  }else{
     memZero(&addr_, sizeof addr_);
     sockets::fromIpPort(ip.c_str(), portArg, &addr_);
   }
 }
-
+// 本身的port转换成字符串。
 string InetAddress::toIpPort() const
 {
   char buf[64] = "";
   sockets::toIpPort(buf, sizeof buf, getSockAddr());
   return buf;
 }
-
+// 获取到的就是string型的。
 string InetAddress::toIp() const
 {
   char buf[64] = "";

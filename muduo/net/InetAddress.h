@@ -21,7 +21,7 @@ namespace muduo
 namespace net
 {
 namespace sockets
-{
+{// 一个强制转换的函数。
 const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);
 }
 
@@ -29,15 +29,18 @@ const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);
 /// Wrapper of sockaddr_in.
 ///
 /// This is an POD interface class.
+// 网际地址的封装。
 class InetAddress : public muduo::copyable
 {
  public:
   /// Constructs an endpoint with given port number.
   /// Mostly used in TcpServer listening.
+  // 仅仅指定port，不指定ip，则ip味INADDR_ANY（0.0.0.0）
   explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false, bool ipv6 = false);
 
   /// Constructs an endpoint with given ip and port.
   /// @c ip should be "1.2.3.4"
+  // 构造一个ip即指定端口也指定ip。string
   InetAddress(StringArg ip, uint16_t port, bool ipv6 = false);
 
   /// Constructs an endpoint with given struct @c sockaddr_in
@@ -56,10 +59,10 @@ class InetAddress : public muduo::copyable
   uint16_t port() const;
 
   // default copy/assignment are Okay
-
+ // 返回对应的 sockaddr
   const struct sockaddr* getSockAddr() const { return sockets::sockaddr_cast(&addr6_); }
   void setSockAddrInet6(const struct sockaddr_in6& addr6) { addr6_ = addr6; }
-
+  // 返回网络字节序的ip和端口。
   uint32_t ipv4NetEndian() const;
   uint16_t portNetEndian() const { return addr_.sin_port; }
 

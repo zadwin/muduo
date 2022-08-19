@@ -8,7 +8,7 @@
 
 int g_total;
 FILE* g_file;
-std::unique_ptr<muduo::LogFile> g_logFile;
+std::unique_ptr<muduo::LogFile> g_logFile;   // 空的全局文件。
 
 void dummyOutput(const char* msg, int len)
 {
@@ -25,7 +25,7 @@ void dummyOutput(const char* msg, int len)
 
 void bench(const char* type)
 {
-  muduo::Logger::setOutput(dummyOutput);
+  muduo::Logger::setOutput(dummyOutput);  // 这里有默认的输出。
   muduo::Timestamp start(muduo::Timestamp::now());
   g_total = 0;
 
@@ -47,23 +47,24 @@ void bench(const char* type)
 }
 
 void logInThread()
-{
+{  // 每个线程去打印日志，默认的输出是标准输出。
   LOG_INFO << "logInThread";
   usleep(1000);
 }
 
 int main()
 {
+  // 获取父进程的pid。
   getppid(); // for ltrace and strace
 
-  muduo::ThreadPool pool("pool");
-  pool.start(5);
+  muduo::ThreadPool pool("pool");  // 一个线程池。
+  pool.start(5);                              // 运行5个线程。
   pool.run(logInThread);
   pool.run(logInThread);
   pool.run(logInThread);
   pool.run(logInThread);
   pool.run(logInThread);
-
+  // 以下是主线程的输出。
   LOG_TRACE << "trace";
   LOG_DEBUG << "debug";
   LOG_INFO << "Hello";
@@ -75,21 +76,21 @@ int main()
   LOG_INFO << sizeof(muduo::LogStream::Buffer);
 
   sleep(1);
-  bench("nop");
+  bench("nop");  // 这是一个性能测试程序。
 
   char buffer[64*1024];
 
-  g_file = fopen("/dev/null", "w");
+  g_file = fopen("/dev/null", "w");  // 这个时候就定位到了文件当中。
   setbuffer(g_file, buffer, sizeof buffer);
-  bench("/dev/null");
+  bench("/dev/null");  // 测试写入到这个文件的性能。
   fclose(g_file);
 
-  g_file = fopen("/tmp/log", "w");
+  g_file = fopen("/tmp/log", "w");  // 打开的是另外的文件。
   setbuffer(g_file, buffer, sizeof buffer);
   bench("/tmp/log");
   fclose(g_file);
 
-  g_file = NULL;
+  g_file = NULL;  // 用新的文件类来测试，一个是线程安全的，一个是非线程安全的。
   g_logFile.reset(new muduo::LogFile("test_log_st", 500*1000*1000, false));
   bench("test_log_st");
 
@@ -98,7 +99,7 @@ int main()
   g_logFile.reset();
 
   {
-  g_file = stdout;
+  g_file = stdout;  // 重新定位到标准输出。
   sleep(1);
   muduo::TimeZone beijing(8*3600, "CST");
   muduo::Logger::setTimeZone(beijing);

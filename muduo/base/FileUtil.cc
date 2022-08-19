@@ -15,9 +15,10 @@
 
 using namespace muduo;
 
+// fp_则为打开文件的指针。
 FileUtil::AppendFile::AppendFile(StringArg filename)
-  : fp_(::fopen(filename.c_str(), "ae")),  // 'e' for O_CLOEXEC
-    writtenBytes_(0)
+  : fp_(::fopen(filename.c_str(), "ae")),  // 'e' for O_CLOEXEC，打开的文件。
+    writtenBytes_(0)                            // 已经写入的字节数。
 {
   assert(fp_);
   ::setbuffer(fp_, buffer_, sizeof buffer_);
@@ -25,7 +26,7 @@ FileUtil::AppendFile::AppendFile(StringArg filename)
 }
 
 FileUtil::AppendFile::~AppendFile()
-{
+{ // 关键文件。
   ::fclose(fp_);
 }
 
@@ -60,6 +61,7 @@ void FileUtil::AppendFile::flush()
 size_t FileUtil::AppendFile::write(const char* logline, size_t len)
 {
   // #undef fwrite_unlocked
+  // 不加锁的方式添加，效率会更快。
   return ::fwrite_unlocked(logline, 1, len, fp_);
 }
 
@@ -152,7 +154,7 @@ int FileUtil::ReadSmallFile::readToBuffer(int* size)
   int err = err_;
   if (fd_ >= 0)
   {
-    ssize_t n = ::pread(fd_, buf_, sizeof(buf_)-1, 0);
+    ssize_t n = ::pread(fd_, buf_, sizeof(buf_)-1, 0); // 可以从偏移位置读。
     if (n >= 0)
     {
       if (size)

@@ -4,7 +4,7 @@ check_function_exists(accept4 HAVE_ACCEPT4)
 if(NOT HAVE_ACCEPT4)
   set_source_files_properties(SocketsOps.cc PROPERTIES COMPILE_FLAGS "-DNO_ACCEPT4")
 endif()
-
+## 这些表示是要编译的。
 set(net_SRCS
   Acceptor.cc
   Buffer.cc
@@ -26,14 +26,14 @@ set(net_SRCS
   Timer.cc
   TimerQueue.cc
   )
-
+# 库链接。
 add_library(muduo_net ${net_SRCS})
 target_link_libraries(muduo_net muduo_base)
 
 #add_library(muduo_net_cpp11 ${net_SRCS})
 #target_link_libraries(muduo_net_cpp11 muduo_base_cpp11)
 #set_target_properties(muduo_net_cpp11 PROPERTIES COMPILE_FLAGS "-std=c++0x")
-
+# 实行安装。
 install(TARGETS muduo_net DESTINATION lib)
 #install(TARGETS muduo_net_cpp11 DESTINATION lib)
 
@@ -51,8 +51,8 @@ set(HEADERS
   TcpServer.h
   TimerId.h
   )
-install(FILES ${HEADERS} DESTINATION include/muduo/net)
-
+install(FILES ${HEADERS} DESTINATION include/muduo/net)  # 实际需要安装的目录。
+# 添加编译的子目录。
 add_subdirectory(http)
 add_subdirectory(inspect)
 

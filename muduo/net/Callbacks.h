@@ -67,6 +67,7 @@ typedef std::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
 typedef std::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
 
 // the data has been read to (buf, len)
+// 这里是要求的回调函数的格式。
 typedef std::function<void (const TcpConnectionPtr&,
                             Buffer*,
                             Timestamp)> MessageCallback;

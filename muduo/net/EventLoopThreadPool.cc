@@ -34,32 +34,31 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 {
   assert(!started_);
   baseLoop_->assertInLoopThread();
-
   started_ = true;
 
-  for (int i = 0; i < numThreads_; ++i)
-  {
+  for (int i = 0; i < numThreads_; ++i){
     char buf[name_.size() + 32];
     snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
-    EventLoopThread* t = new EventLoopThread(cb, buf);
-    threads_.push_back(std::unique_ptr<EventLoopThread>(t));
-    loops_.push_back(t->startLoop());
+    EventLoopThread* t = new EventLoopThread(cb, buf);  // 创建这么多个EventLoopThread线程，还没有启动。
+    threads_.push_back(std::unique_ptr<EventLoopThread>(t));  // 获取管理权限。
+    loops_.push_back(t->startLoop());                              // 线程启动之前会先调用cd函数。
   }
   if (numThreads_ == 0 && cb)
   {
+    // 只有一个EventLoop在这个EventLoop进入事件循环之前，调用cb函数。
     cb(baseLoop_);
   }
 }
-
+// 当一个新的连接到来的时候，我们要选择一个loop来处理这个连接。
 EventLoop* EventLoopThreadPool::getNextLoop()
 {
   baseLoop_->assertInLoopThread();
   assert(started_);
   EventLoop* loop = baseLoop_;
-
+  // 如果有线程IO则，循环遍历这个列表，选择合理的线程IO去处理这个连接。
   if (!loops_.empty())
   {
-    // round-robin
+    // round-robin，轮叫的方式选择loop
     loop = loops_[next_];
     ++next_;
     if (implicit_cast<size_t>(next_) >= loops_.size())

@@ -50,7 +50,7 @@ class Poller : noncopyable
 
   virtual bool hasChannel(Channel* channel) const;
 
-  static Poller* newDefaultPoller(EventLoop* loop);
+  static Poller* newDefaultPoller(EventLoop* loop);// 这样在一个线程中就只会有一个poller对象了，也就是所谓的单例模式。
 
   void assertInLoopThread() const
   {
@@ -58,11 +58,11 @@ class Poller : noncopyable
   }
 
  protected:
-  typedef std::map<int, Channel*> ChannelMap;
-  ChannelMap channels_;
+  typedef std::map<int, Channel*> ChannelMap; // 在这个类中去声明了这个一个map对象，目的是更快的查找和删除等，这里是是类型的声明。
+  ChannelMap channels_;                                // 一个map，存储文件描述符和channel通道。
 
  private:
-  EventLoop* ownerLoop_;
+  EventLoop* ownerLoop_;                              // 标示当前poller的eventloop对象是哪个。
 };
 
 }  // namespace net

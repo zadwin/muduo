@@ -22,8 +22,8 @@ namespace CurrentThread
 
   inline int tid()
   {
-    if (__builtin_expect(t_cachedTid == 0, 0)) // 判断是否缓存过。
-    {
+    if (__builtin_expect(t_cachedTid == 0, 0))  // 指令的优化。
+    { // 如果没有缓存过线程id，则执行一次缓存函数。
       cacheTid();
     }
     return t_cachedTid;

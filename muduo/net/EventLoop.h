@@ -101,7 +101,9 @@ class EventLoop : noncopyable
 
   // internal usage
   void wakeup();
+  // 用于在poller中添加或者更新通道。
   void updateChannel(Channel* channel);
+  // 用于删除事件。
   void removeChannel(Channel* channel);
   bool hasChannel(Channel* channel);
 
@@ -113,6 +115,7 @@ class EventLoop : noncopyable
       abortNotInLoopThread();
     }
   }
+  // 这里会去调用muduo基础库的类。
   bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
   // bool callingPendingFunctors() const { return callingPendingFunctors_; }
   bool eventHandling() const { return eventHandling_; }
@@ -137,24 +140,26 @@ class EventLoop : noncopyable
 
   typedef std::vector<Channel*> ChannelList;
 
-  bool looping_; /* atomic */
+  // looping和quit的区别是什么？
+  bool looping_; /* atomic */                          // 标记IO事件是否处于循环监听的状态。
   std::atomic<bool> quit_;
   bool eventHandling_; /* atomic */
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;
-  const pid_t threadId_;
-  Timestamp pollReturnTime_;
-  std::unique_ptr<Poller> poller_;
+  const pid_t threadId_;                                  // 线程 id，记录当前对象属于哪一个线程，因为需要判断执行某些函数是否是在当前的线程中。
+  Timestamp pollReturnTime_;                        // 调用poll函数返回的时间。
+  std::unique_ptr<Poller> poller_;                    // 这是一个poll对象，它的生存期有eventloop来控制。
   std::unique_ptr<TimerQueue> timerQueue_;
+  // 这是一个事件文件描述符，用来管理 wakeupChannel_，主要的目的是为了处理一些多线程的任务同时也防止eventloop一直处理空闲状态。
   int wakeupFd_;
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
-  std::unique_ptr<Channel> wakeupChannel_;
+  std::unique_ptr<Channel> wakeupChannel_;  // eventloop 会管理这个Channel对象。
   boost::any context_;
 
   // scratch variables
-  ChannelList activeChannels_;
-  Channel* currentActiveChannel_;
+  ChannelList activeChannels_;                      // poller返回的活动对象，产生的活动事件。
+  Channel* currentActiveChannel_;                 // 当前这在处理的活动通道。
 
   mutable MutexLock mutex_;
   std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);

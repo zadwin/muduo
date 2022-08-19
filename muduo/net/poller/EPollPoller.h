@@ -36,7 +36,7 @@ class EPollPoller : public Poller
   void removeChannel(Channel* channel) override;
 
  private:
-  static const int kInitEventListSize = 16;
+  static const int kInitEventListSize = 16;             // 初始能够容纳的空间为16.
 
   static const char* operationToString(int op);
 
@@ -46,8 +46,8 @@ class EPollPoller : public Poller
 
   typedef std::vector<struct epoll_event> EventList;
 
-  int epollfd_;
-  EventList events_;
+  int epollfd_;                           // epoll文件描述符。
+  EventList events_;                  // 事件列表，这是用来接收活跃事件的列表。
 };
 
 }  // namespace net

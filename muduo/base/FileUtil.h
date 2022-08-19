@@ -59,7 +59,7 @@ int readFile(StringArg filename,
   return file.readToString(maxSize, content, fileSize, modifyTime, createTime);
 }
 
-// not thread safe
+// not thread safe，这个类不是线程安全的——是通过不加锁的方式写入，主要是为了提高写入文件的效率。
 class AppendFile : noncopyable
 {
  public:
@@ -78,8 +78,8 @@ class AppendFile : noncopyable
   size_t write(const char* logline, size_t len);
 
   FILE* fp_;
-  char buffer_[64*1024];
-  off_t writtenBytes_;
+  char buffer_[64*1024];  // 文件的缓冲区，超过了这个数量也会flush到文件中。
+  off_t writtenBytes_;      // 这其实也就是一个文件的写入的字节数量。
 };
 
 }  // namespace FileUtil

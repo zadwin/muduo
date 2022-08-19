@@ -14,6 +14,8 @@
 
 using namespace muduo::net;
 
+// 这是一个poller类，中的一个默认的静态函数。
+// 这就是一种简单工厂模式。
 Poller* Poller::newDefaultPoller(EventLoop* loop)
 {
   if (::getenv("MUDUO_USE_POLL"))

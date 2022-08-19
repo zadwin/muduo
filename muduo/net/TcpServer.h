@@ -41,8 +41,8 @@ class TcpServer : noncopyable
   };
 
   //TcpServer(EventLoop* loop, const InetAddress& listenAddr);
-  TcpServer(EventLoop* loop,
-            const InetAddress& listenAddr,
+  TcpServer(EventLoop* loop,   // 一个主的 EventLoop 实例。
+            const InetAddress& listenAddr,   // 监听地址。
             const string& nameArg,
             Option option = kNoReusePort);
   ~TcpServer();  // force out-line dtor, for std::unique_ptr members.
@@ -97,21 +97,21 @@ class TcpServer : noncopyable
   /// Not thread safe, but in loop
   void removeConnectionInLoop(const TcpConnectionPtr& conn);
 
-  typedef std::map<string, TcpConnectionPtr> ConnectionMap;
+  typedef std::map<string, TcpConnectionPtr> ConnectionMap; // 连接对象的指针。
 
-  EventLoop* loop_;  // the acceptor loop
-  const string ipPort_;
-  const string name_;
-  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
-  std::shared_ptr<EventLoopThreadPool> threadPool_;
-  ConnectionCallback connectionCallback_;
-  MessageCallback messageCallback_;
+  EventLoop* loop_;     // the acceptor loop
+  const string ipPort_;  // 监听的端口号。
+  const string name_;   // 服务名称。
+  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor，acceptor
+  std::shared_ptr<EventLoopThreadPool> threadPool_; // IO线程池。
+  ConnectionCallback connectionCallback_; // 连接到来的回调函数。
+  MessageCallback messageCallback_;       // 消息到来的回调函数。
   WriteCompleteCallback writeCompleteCallback_;
   ThreadInitCallback threadInitCallback_;
-  AtomicInt32 started_;
+  AtomicInt32 started_;                             // 原子性整数。
   // always in loop thread
-  int nextConnId_;
-  ConnectionMap connections_;
+  int nextConnId_; // 下一个连接的id。
+  ConnectionMap connections_;  // 一个连接列表。
 };
 
 }  // namespace net
